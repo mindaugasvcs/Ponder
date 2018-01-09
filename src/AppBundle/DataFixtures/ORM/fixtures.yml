@@ -1,0 +1,26 @@
+AppBundle\Entity\User:
+    user_{1..20}:
+        email (unique): <email()>
+        username (unique): <username()>
+        password: $2y$13$HzgrbvIjcfMxIyE.z5ybjujGIUtFNvNixdlPUTFJ868/HNS2u2HVm
+
+AppBundle\Entity\Poll:
+    poll_{1..40}:
+        title: <sentence()>
+        createdAt: <dateTimeBetween('-6 months', 'now')>
+        hitsCount: <numberBetween(10, 10000)>
+        author: '@user_*'
+
+AppBundle\Entity\PollOption:
+    poll.option_{1..100}:
+        sequence: 1
+        votesCount: <numberBetween(10, 10000)>
+        content: <sentence()>
+        poll: '@poll_*'
+
+AppBundle\Entity\PollOptionVote:
+    poll.option.vote_{1..1000}:
+        pollOption: '@poll.option_*'
+        voter: '50%? @user_*'
+        voterIp: <ipv4()>
+        createdAt: <dateTimeBetween('-6 months', 'now')>
