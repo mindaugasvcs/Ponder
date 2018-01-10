@@ -43,12 +43,12 @@ class Poll
      * @ORM\OneToMany(targetEntity="PollOption", mappedBy="poll")
      * @ORM\OrderBy({"sequence"="ASC"})
      */
-    private $options;
+    private $pollOptions;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
-        $this->options = new ArrayCollection();
+        $this->pollOptions = new ArrayCollection();
     }
 
     public function getId()
@@ -99,8 +99,8 @@ class Poll
     /**
      * @return ArrayCollection|PollOption[]
      */
-    public function getOptions()
+    public function getPollOptions()
     {
-        return $this->options;
+        return $this->pollOptions;
     }
 }

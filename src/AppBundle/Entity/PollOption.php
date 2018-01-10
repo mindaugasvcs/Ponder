@@ -35,13 +35,13 @@ class PollOption
     private $content;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Poll")
+     * @ORM\ManyToOne(targetEntity="Poll", inversedBy="pollOptions")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $poll;
 
     /**
-     * @ORM\OneToMany(targetEntity="PollOptionVote", mappedBy="poll")
+     * @ORM\OneToMany(targetEntity="PollOptionVote", mappedBy="pollOption")
      * @ORM\OrderBy({"createdAt"="DESC"})
      */
     private $votes;

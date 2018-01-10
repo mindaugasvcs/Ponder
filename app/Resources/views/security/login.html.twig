@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    {{ parent() }}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Login</h1>
+                {{ form_start(form) }}
+                {{ form_errors(form) }}
+                {{ form_row(form.username, {'full_name': '_username', 'value': last_username}) }}
+                {{ form_row(form.password, {'full_name': '_password'}) }}
+                {{ form_row(form.remember_me, {'full_name': '_remember_me'}) }}
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

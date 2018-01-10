@@ -13,8 +13,14 @@ class PollType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('title')->add('createdAt')->add('hitsCount')->add('author');
-    }/**
+        $builder
+            ->add('title')
+            ->add('createdAt')
+            ->add('hitsCount')
+            ->add('author');
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)

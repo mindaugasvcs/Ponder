@@ -2,16 +2,27 @@
 # https://symfony.com/doc/current/security.html
 security:
     encoders:
+        Symfony\Component\Security\Core\User\User:
+            algorithm: bcrypt
         AppBundle\Entity\User:
             algorithm: bcrypt
 
     # https://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
     providers:
+        chain_provider:
+            chain:
+                providers: [in_memory, our_db_provider]
         in_memory:
-            memory: ~
+            memory:
+                users:
+                    admin:
+                        # password: kitten
+                        password: $2a$12$cyTWeE9kpq1PjqKFiWUZFuCRPwVyAZwm4XzMZ1qPUFl7/flCM3V0G
+                        roles: 'ROLE_ADMIN'
         our_db_provider:
             entity:
                 class: AppBundle:User
+
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
@@ -19,6 +30,8 @@ security:
             security: false
 
         main:
+            logout_on_user_change: true
+            provider: chain_provider
             anonymous: ~
             # activate different ways to authenticate
 
@@ -27,4 +40,20 @@ security:
 
             # https://symfony.com/doc/current/security/form_login_setup.html
             form_login:
-                csrf_token_generator: security.csrf.token_manager
+                # the user is redirected here when they need to log in
+                login_path: login
+                # submit the login form here
+                check_path: login
+                # field names for the username and password fields
+                username_parameter: _username
+                password_parameter: _password
+                remember_me: true
+                # csrf_parameter: _csrf_token
+                # csrf_token_generator: security.csrf.token_manager
+            remember_me:
+                secret: '%secret%'
+                always_remember_me: false
+                remember_me_parameter: _remember_me
+            logout:
+                path: /logout
+                target: /

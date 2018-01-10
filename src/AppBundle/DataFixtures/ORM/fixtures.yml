@@ -15,7 +15,7 @@ AppBundle\Entity\PollOption:
     poll.option_{1..100}:
         sequence: 1
         votesCount: <numberBetween(10, 10000)>
-        content: <sentence()>
+        content: <sentence(4)>
         poll: '@poll_*'
 
 AppBundle\Entity\PollOptionVote:

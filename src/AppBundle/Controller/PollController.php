@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Poll controller.
- *
- * @Route("poll")
  */
 class PollController extends Controller
 {
@@ -21,15 +19,25 @@ class PollController extends Controller
      * @Route("/", name="poll_index")
      * @Method("GET")
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $polls = $em->getRepository('AppBundle:Poll')->findAll();
+        $dql   = "SELECT p, o, a FROM AppBundle:Poll p JOIN p.pollOptions o JOIN p.author a";
+        $query = $em->createQuery($dql);
 
-        return $this->render('poll/index.html.twig', array(
-            'polls' => $polls,
-        ));
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $query, /* query NOT result */
+            $request->query->getInt('page', 1)/*page number*/,
+            10/*limit per page*/
+        );
+
+        // parameters to template
+        return $this->render('poll/index.html.twig', [
+            'pagination' => $pagination
+            ]
+        );
     }
 
     /**
@@ -61,7 +69,7 @@ class PollController extends Controller
     /**
      * Finds and displays a poll entity.
      *
-     * @Route("/{id}", name="poll_show")
+     * @Route("/{id}", name="poll_show", requirements={"id" = "\d+"})
      * @Method("GET")
      */
     public function showAction(Poll $poll)
@@ -77,7 +85,7 @@ class PollController extends Controller
     /**
      * Displays a form to edit an existing poll entity.
      *
-     * @Route("/{id}/edit", name="poll_edit")
+     * @Route("/{id}/edit", name="poll_edit", requirements={"id" = "\d+"})
      * @Method({"GET", "POST"})
      */
     public function editAction(Request $request, Poll $poll)
@@ -102,7 +110,7 @@ class PollController extends Controller
     /**
      * Deletes a poll entity.
      *
-     * @Route("/{id}", name="poll_delete")
+     * @Route("/{id}", name="poll_delete", requirements={"id" = "\d+"})
      * @Method("DELETE")
      */
     public function deleteAction(Request $request, Poll $poll)

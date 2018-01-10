@@ -19,7 +19,7 @@ class PollOptionVote
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="PollOption")
+     * @ORM\ManyToOne(targetEntity="PollOption", inversedBy="votes")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $pollOption;

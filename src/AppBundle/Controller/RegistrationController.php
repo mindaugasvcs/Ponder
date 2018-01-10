@@ -1,15 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: user
- * Date: 1/8/2018
- * Time: 16:37
- */
 
 namespace AppBundle\Controller;
 
 
-use AppBundle\Form\UserType;
+use AppBundle\Form\UserRegistrationType;
 use AppBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +19,7 @@ class RegistrationController extends Controller
     {
         // 1) build the form
         $user = new User();
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserRegistrationType::class, $user);
 
         // 2) handle the submit (will only happen on POST)
         $form->handleRequest($request);
@@ -48,7 +42,9 @@ class RegistrationController extends Controller
 
         return $this->render(
             'registration/register.html.twig',
-            array('form' => $form->createView())
+            [
+                'form' => $form->createView()
+            ]
         );
     }
 }
