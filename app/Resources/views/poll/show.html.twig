@@ -1,40 +1,48 @@
 {% extends 'base.html.twig' %}
-
+{#{{ pollOption.votes|length }}#}
 {% block body %}
-    <h1>Poll</h1>
-
-    <table>
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ poll.id }}</td>
-            </tr>
-            <tr>
-                <th>Title</th>
-                <td>{{ poll.title }}</td>
-            </tr>
-            <tr>
-                <th>Createdat</th>
-                <td>{% if poll.createdAt %}{{ poll.createdAt|date('Y-m-d H:i:s') }}{% endif %}</td>
-            </tr>
-            <tr>
-                <th>Hitscount</th>
-                <td>{{ poll.hitsCount }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <ul>
-        <li>
-            <a href="{{ path('poll_index') }}">Back to the list</a>
-        </li>
-        <li>
-            <a href="{{ path('poll_edit', { 'id': poll.id }) }}">Edit</a>
-        </li>
-        <li>
-            {{ form_start(delete_form) }}
-                <input type="submit" value="Delete">
-            {{ form_end(delete_form) }}
-        </li>
-    </ul>
+    {{ parent() }}
+    <div class="col-md-6">
+        {% for msg in app.session.flashBag.get('success') %}
+            <div class="alert alert-success">
+                {{ msg }}
+            </div>
+        {% endfor %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title"><span class="glyphicon glyphicon-question-sign"></span> {{ poll.author.username }}: {{  poll.title }}</h3>
+            </div>
+            <div class="panel-body two-col">
+            {% for pollOption in poll.pollOptions %}
+                {% if loop.index is odd %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="well well-sm">
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="pollOption" value="{{ pollOption.id }}">{{ pollOption.content }}</label>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-md-6">
+                        <div class="well well-sm">
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="pollOption" value="{{ pollOption.id }}">{{ pollOption.content }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if loop.index is odd and loop.index == loop.length %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            </div>
+            <div class="panel-footer">
+                <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Vote</button>
+                <a href="{{ path('poll_show', { 'id': poll.id }) }}" class="btn btn-primary">View Result</a>
+                <a href="{{ path('poll_edit', { 'id': poll.id }) }}" class="btn btn-warning pull-right"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+            </div>
+        </div>
+    </div>
 {% endblock %}

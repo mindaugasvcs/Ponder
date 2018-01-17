@@ -78,6 +78,11 @@ class User implements UserInterface, \Serializable
         $this->polls = new ArrayCollection();
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
     public function getEmail()
     {
         return $this->email;
@@ -176,5 +181,10 @@ class User implements UserInterface, \Serializable
     public function getPolls()
     {
         return $this->polls;
+    }
+
+    public function getIsActive()
+    {
+        return $this->isActive;
     }
 }

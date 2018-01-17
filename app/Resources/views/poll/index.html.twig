@@ -8,10 +8,14 @@
     {% if loop.index is odd %}
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title"><span class="glyphicon glyphicon-question-sign"></span> {{ poll.title }}?</h3>
+                <h3 class="panel-title"><span class="glyphicon glyphicon-question-sign"></span> {{ poll.author.username }}: {{ poll.title }}</h3>
             </div>
             <div class="panel-body two-col">
+            {% set voted = false %}
             {% for pollOption in poll.pollOptions %}
+                {% if pollOption.votes|length %}
+                    {% set voted = true %}
+                {% endif %}
                 {% if loop.index is odd %}
                 <div class="row">
                     <div class="col-md-6">
@@ -37,9 +41,13 @@
             {% endfor %}
             </div>
             <div class="panel-footer">
+                {% if not voted %}
                 <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Vote</button>
-                <a href="{{ path('poll_show', { 'id': poll.id }) }}" class="btn btn-primary">View Result</>
+                {% endif %}
+                <a href="{{ path('poll_show', { 'id': poll.id }) }}" class="btn btn-primary">View Result</a>
+                {% if is_granted('ROLE_ADMIN') or app.user.id is defined and app.user.id == poll.author.id %}
                 <a href="{{ path('poll_edit', { 'id': poll.id }) }}" class="btn btn-warning pull-right"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+                {% endif %}
             </div>
         </div>
     {% endif %}
@@ -51,10 +59,14 @@
     {% if loop.index is even %}
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title"><span class="glyphicon glyphicon-question-sign"></span> {{ poll.title }}?</h3>
+                <h3 class="panel-title"><span class="glyphicon glyphicon-question-sign"></span> {{ poll.author.username }}: {{ poll.title }}</h3>
             </div>
             <div class="panel-body two-col">
+            {% set voted = false %}
             {% for pollOption in poll.pollOptions %}
+                {% if pollOption.votes|length %}
+                    {% set voted = true %}
+                {% endif %}
                 {% if loop.index is odd %}
                 <div class="row">
                     <div class="col-md-6">
@@ -80,9 +92,13 @@
             {% endfor %}
             </div>
             <div class="panel-footer">
+                {% if not voted %}
                 <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Vote</button>
-                <a href="{{ path('poll_show', { 'id': poll.id }) }}" class="btn btn-primary">View Result</>
+                {% endif %}
+                <a href="{{ path('poll_show', { 'id': poll.id }) }}" class="btn btn-primary">View Result</a>
+                {% if is_granted('ROLE_ADMIN') or app.user.id is defined and app.user.id == poll.author.id %}
                 <a href="{{ path('poll_edit', { 'id': poll.id }) }}" class="btn btn-warning pull-right"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+                {% endif %}
             </div>
         </div>
     {% endif %}

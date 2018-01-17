@@ -3,9 +3,11 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Poll;
+use AppBundle\Entity\PollOption;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -22,15 +24,21 @@ class PollController extends Controller
     public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-
-        $dql   = "SELECT p, o, a FROM AppBundle:Poll p JOIN p.pollOptions o JOIN p.author a";
+        $dql   = "SELECT p, o, a, v
+                  FROM AppBundle:Poll p
+                  INNER JOIN p.pollOptions o
+                  INNER JOIN p.author a
+                  LEFT JOIN o.votes v
+                  WITH v.voterIp = :ip
+                  ORDER BY p.createdAt DESC";
         $query = $em->createQuery($dql);
+        $query->setParameter('ip', $request->getClientIp());
 
         $paginator  = $this->get('knp_paginator');
         $pagination = $paginator->paginate(
             $query, /* query NOT result */
-            $request->query->getInt('page', 1)/*page number*/,
-            10/*limit per page*/
+            $request->query->getInt('page', 1), /*page number*/
+            10 /*limit per page*/
         );
 
         // parameters to template
@@ -43,19 +51,33 @@ class PollController extends Controller
     /**
      * Creates a new poll entity.
      *
+     * @Security("has_role('ROLE_USER')")
      * @Route("/new", name="poll_new")
      * @Method({"GET", "POST"})
      */
     public function newAction(Request $request)
     {
         $poll = new Poll();
+        $poll->setAuthor($this->getUser());
+        $poll->getPollOptions()->add(new PollOption());
+        $poll->getPollOptions()->add(new PollOption());
+
         $form = $this->createForm('AppBundle\Form\PollType', $poll);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $poll = $form->getData();
+
+            foreach ($poll->getPollOptions() as $index => $pollOption) {
+                $pollOption->setSequence($index);
+                $pollOption->setPoll($poll);
+            }
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($poll);
             $em->flush();
+
+            $this->addFlash('success', 'Poll created!');
 
             return $this->redirectToRoute('poll_show', array('id' => $poll->getId()));
         }
@@ -90,6 +112,12 @@ class PollController extends Controller
      */
     public function editAction(Request $request, Poll $poll)
     {
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            if ($poll->getAuthor() !== $this->getUser()) {
+                throw $this->createAccessDeniedException();
+            }
+        }
+
         $deleteForm = $this->createDeleteForm($poll);
         $editForm = $this->createForm('AppBundle\Form\PollType', $poll);
         $editForm->handleRequest($request);
@@ -97,7 +125,9 @@ class PollController extends Controller
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('poll_edit', array('id' => $poll->getId()));
+            $this->addFlash('success', 'Poll updated!');
+
+            return $this->redirectToRoute('poll_show', array('id' => $poll->getId()));
         }
 
         return $this->render('poll/edit.html.twig', array(
@@ -115,6 +145,12 @@ class PollController extends Controller
      */
     public function deleteAction(Request $request, Poll $poll)
     {
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            if ($poll->getAuthor() !== $this->getUser()) {
+                throw $this->createAccessDeniedException();
+            }
+        }
+
         $form = $this->createDeleteForm($poll);
         $form->handleRequest($request);
 
@@ -136,10 +172,11 @@ class PollController extends Controller
      */
     private function createDeleteForm(Poll $poll)
     {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('poll_delete', array('id' => $poll->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
+        return $this->createFormBuilder(null, [
+            'action' => $this->generateUrl('poll_delete', ['id' => $poll->getId()]),
+            'method' => 'DELETE',
+            'attr' => ['id' => 'item-deletion-form']
+        ])
+            ->getForm();
     }
 }

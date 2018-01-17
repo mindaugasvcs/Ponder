@@ -1,21 +1,25 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Poll edit</h1>
-
-    {{ form_start(edit_form) }}
-        {{ form_widget(edit_form) }}
-        <input type="submit" value="Edit" />
-    {{ form_end(edit_form) }}
-
-    <ul>
-        <li>
-            <a href="{{ path('poll_index') }}">Back to the list</a>
-        </li>
-        <li>
-            {{ form_start(delete_form) }}
-                <input type="submit" value="Delete">
-            {{ form_end(delete_form) }}
-        </li>
-    </ul>
+    {{ parent() }}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Poll edit</h1>
+                {{ form_start(edit_form) }}
+                    {{ form_errors(edit_form) }}
+                    {{ form_row(edit_form.title) }}
+                    <div class="form-collection-container" data-prototype="{{ form_widget(edit_form.pollOptions.vars.prototype)|e('html_attr') }}">
+                        {% for pollOptionForm in edit_form.pollOptions %}
+                            {{ form_row(pollOptionForm) }}
+                        {% endfor %}
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Save" />
+                    <button type="button" class="btn btn-danger pull-right" onclick="document.getElementById('item-deletion-form').submit()"><span class="fa fa-remove"></span> Delete this poll</button>
+                {{ form_end(edit_form) }}
+                {{ form_start(delete_form) }}
+                {{ form_end(delete_form) }}
+            </div>
+        </div>
+    </div>
 {% endblock %}

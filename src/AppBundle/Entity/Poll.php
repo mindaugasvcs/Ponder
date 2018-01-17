@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\PollRepository")
  * @ORM\Table(name="poll")
  */
 class Poll
@@ -40,7 +40,7 @@ class Poll
     private $author;
 
     /**
-     * @ORM\OneToMany(targetEntity="PollOption", mappedBy="poll")
+     * @ORM\OneToMany(targetEntity="PollOption", mappedBy="poll", cascade={"persist"})
      * @ORM\OrderBy({"sequence"="ASC"})
      */
     private $pollOptions;
@@ -48,6 +48,7 @@ class Poll
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->hitsCount = 0;
         $this->pollOptions = new ArrayCollection();
     }
 

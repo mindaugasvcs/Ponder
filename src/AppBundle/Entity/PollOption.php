@@ -48,6 +48,7 @@ class PollOption
 
     public function __construct()
     {
+        $this->votesCount = 0;
         $this->votes = new ArrayCollection();
     }
 
@@ -100,5 +101,4 @@ class PollOption
     {
         return $this->votes;
     }
-
 }

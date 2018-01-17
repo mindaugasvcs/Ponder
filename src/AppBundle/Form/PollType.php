@@ -3,6 +3,8 @@
 namespace AppBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,10 +16,20 @@ class PollType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title')
-            ->add('createdAt')
-            ->add('hitsCount')
-            ->add('author');
+            ->add('title', TextType::class, [
+                'label' => false
+            ])
+            ->add('pollOptions', CollectionType::class, [
+                'label' => false,
+                'attr' => ['class' => 'form-collection-container'],
+                'entry_type' => PollOptionType::class,
+                'entry_options' => [
+                    'label' => false
+                ],
+                'allow_add' => true,
+//                'by_reference' => false, // enable "adder" and a "remover" methods to easily handle doctrine db relationships
+                'allow_delete' => true
+            ]);
     }
 
     /**

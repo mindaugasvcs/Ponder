@@ -1,16 +1,106 @@
 {% extends 'base.html.twig' %}
 
+{% form_theme form.pollOptions _self %}
+{% block appbundle_polloption_widget %}
+{% spaceless %}
+    <div class="form-group">
+        <div class="input-group">
+            {{ block('form_row') }}
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default" onclick="removeFormItem(this)"><span class="fa fa-close"></span> Remove</button>
+            </span>
+        </div>
+    </div>
+{% endspaceless %}
+{% endblock %}
+
+{% block form_widget %}
+    {% if compound %}
+        {% for child in form %}
+            {{ form_row(child, {'attr': attr}) }}
+        {% endfor %}
+    {% else %}
+        {% if type is not defined or type not in ['file', 'hidden'] %}
+            {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) %}
+        {% endif %}
+        {% set type = type|default('text') %}
+        <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}/>
+    {% endif %}
+{% endblock form_widget %}
+
+{% block form_row -%}
+    {{- form_label(form) -}}
+    {{- form_widget(form) -}}
+    {{- form_errors(form) -}}
+{%- endblock form_row %}
+
 {% block body %}
-    <h1>Poll creation</h1>
+    {{ parent() }}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Poll creation</h1>
+                {{ form_start(form) }}
+                    {{ form_errors(form) }}
+                    {{ form_row(form.title, {'attr': {'placeholder': 'Your question'}}) }}
+                    <div class="form-collection-container" data-prototype="{{ form_widget(form.pollOptions.vars.prototype, {'attr': {'placeholder': 'Your answer'}})|e('html_attr') }}">
+                        {{ form_row(form.pollOptions, {'attr': {'placeholder': 'Your answer'}}) }}
+                    </div>
+                    <button type="button" class="btn btn-warning" onclick="addFormItem(event)"><span class="fa fa-plus-circle"></span> Add an option</button>
+                    <input type="submit" class="btn btn-primary" value="Create" />
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
 
-    {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <input type="submit" value="Create" />
-    {{ form_end(form) }}
+    <script type="text/javascript">
+        function addFormItem(e) {
+            e.preventDefault();
+            var container = document.querySelector(".form-collection-container");
+            var prototype = container.getAttribute("data-prototype");
 
-    <ul>
-        <li>
-            <a href="{{ path('poll_index') }}">Back to the list</a>
-        </li>
-    </ul>
+            if (container.children.length === 10) {
+                return alert("Up to 10 answers allowed!")
+            }
+
+            // Replace '__name__' in the prototype's HTML to
+            // instead be a number based on how many items we have
+            var newForm = prototype.replace(/__name__/g, container.childElementCount);
+            container.innerHTML = container.innerHTML + newForm;
+        }
+
+        function removeFormItem(t) {
+            var container = document.querySelector(".form-collection-container");
+            var itemIndexToRemove = null;
+
+            if (container.children.length === 2) {
+                return alert("Minimum two answers required!")
+            }
+
+            for (var itemIndex = 0, itemElements; itemIndex < container.children.length; itemIndex++) {
+                itemElements = container.children[itemIndex].getElementsByTagName("*");
+                for (var i = 0; i < itemElements.length; i++) {
+                    if (itemElements[i] === t) {
+                        itemIndexToRemove = itemIndex;
+                        i = itemIndex = Number.MAX_VALUE;
+                    }
+                }
+            }
+
+            for (var itemIndex = (itemIndexToRemove + 1), itemElements; itemIndex < container.children.length; itemIndex++) {
+                itemElements = container.children[itemIndex].getElementsByTagName("*");
+                for (var i = 0; i < itemElements.length; i++) {
+                    if (itemElements[i].id) {
+                        itemElements[i].id = itemElements[i].id.replace(/_\d_/, "_" + (itemIndex - 1) + "_");
+                    }
+                    if (itemElements[i].getAttribute("name")) {
+                        itemElements[i].setAttribute("name", itemElements[i].getAttribute("name").replace(/\[\d]/, "[" + (itemIndex - 1) + "]"));
+                    }
+                }
+            }
+
+            container.removeChild(container.children[itemIndexToRemove]);
+        }
+    </script>
+
 {% endblock %}
