@@ -65,8 +65,9 @@
 
             // Replace '__name__' in the prototype's HTML to
             // instead be a number based on how many items we have
-            var newForm = prototype.replace(/__name__/g, container.childElementCount);
-            container.innerHTML = container.innerHTML + newForm;
+            var newForm = document.createElement("DIV");
+            newForm.innerHTML = prototype.replace(/__name__/g, container.childElementCount);
+            container.appendChild(newForm);
         }
 
         function removeFormItem(t) {

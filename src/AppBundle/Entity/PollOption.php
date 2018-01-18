@@ -41,7 +41,7 @@ class PollOption
     private $poll;
 
     /**
-     * @ORM\OneToMany(targetEntity="PollOptionVote", mappedBy="pollOption")
+     * @ORM\OneToMany(targetEntity="PollOptionVote", mappedBy="pollOption", cascade={"persist"})
      * @ORM\OrderBy({"createdAt"="DESC"})
      */
     private $votes;
