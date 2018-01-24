@@ -152,12 +152,14 @@
     function voteAjax(e,t) {
         e.preventDefault();
         t.style.disabled = true;
+        t.firstElementChild.className = "glyphicon glyphicon-refresh spin";
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (this.readyState == 4) {
                 if (this.status == 200) {
                     t.parentNode.removeChild(t);
                 }
+                t.firstElementChild.className = "glyphicon glyphicon-ok";
                 t.style.disabled = false;
                 showVoteMessage(JSON.parse(this.responseText).message);
             }

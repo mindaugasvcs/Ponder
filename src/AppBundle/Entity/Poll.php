@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="AppBundle\Repository\PollRepository")
@@ -42,6 +43,8 @@ class Poll
     /**
      * @ORM\OneToMany(targetEntity="PollOption", mappedBy="poll", cascade={"persist"})
      * @ORM\OrderBy({"sequence"="ASC"})
+     * @Assert\Count(min="2", minMessage="Minimum two answers required.")
+     * @Assert\Count(max="10", maxMessage="Up to 10 answers allowed.")
      */
     private $pollOptions;
 
